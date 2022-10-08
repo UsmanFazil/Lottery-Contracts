@@ -331,56 +331,6 @@ contract FunLottery is Ownable, VRFConsumerBase{
         return prizeAmount;
    }
     
-    
-    function calculateReward(uint256 _size,uint256 _lotteryid,uint256 _ticketnum)public view returns(uint256){
-       
-        uint256 prizeAmount = 0;
-        uint256 winningNum = allLoteries[_size][_lotteryid].winNumber;
-        uint256 _maxtickets=   allLoteries[_size][_lotteryid].maxtickets;
-        uint256 _segmentsize = _maxtickets.div(4);
-        
-        // segmentSet memory newSeg;
-        segment[4] memory segList;
-
-
-        for (uint256 i=0; i<4; i++){
-            
-            (segList[i].StartNum, segList[i].EndNum, segList[i].rollStart, segList[i].rollEnd) = calculateSegment(winningNum, _size, _maxtickets, i, _segmentsize);
-            
-        }
-        
-
-        if (_ticketnum == winningNum){ 
-            prizeAmount = _size.mul(100000000).div(2); // 50%  
-        } 
-        
-        else if (_ticketnum == segList[1].StartNum){ // 2nd prize
-            prizeAmount = percentage(_size,10).mul(100000000); // 10% 
-        }
-        
-        else if (_ticketnum == segList[2].StartNum){ // 3rd prize
-            prizeAmount = percentage(_size,5).mul(100000000); // 5% 
-        }
-        
-        else if ( ((_ticketnum > segList[0].StartNum) && (_ticketnum <= segList[0].rollEnd)) || ((_ticketnum > segList[0].rollStart) && (_ticketnum <= segList[0].EndNum))){
-            prizeAmount = percentage(_size,18).mul(100000000).div(percentage(_size,10).sub(3)); // 18%
-        }
-        
-        else if ( ((_ticketnum > segList[1].StartNum) && (_ticketnum <= segList[1].rollEnd)) || ((_ticketnum > segList[1].rollStart) && (_ticketnum <= segList[1].EndNum))){
-            prizeAmount = percentage(_size,6).mul(100000000).div(percentage(_size,10)); // 6%
-        }
-        
-        else if ( ((_ticketnum > segList[2].StartNum) && (_ticketnum <= segList[2].rollEnd)) || ((_ticketnum > segList[2].rollStart) && (_ticketnum <= segList[2].EndNum))){
-            prizeAmount = percentage(_size,7).mul(100000000).div(percentage(_size,20)); // 7%
-        }
-        
-        else if ( ((_ticketnum >= segList[3].StartNum) && (_ticketnum <= segList[3].rollEnd)) || ((_ticketnum >= segList[3].rollStart) && (_ticketnum <= segList[3].EndNum))){
-            prizeAmount = percentage(_size,4).mul(100000000).div(percentage(_size,30)); // 4%
-        }
-        
-        return prizeAmount;
-   }
-    
    
    function calculateSegment(uint256 _winningNum,uint256 _size,uint256 _maxtickets,uint256 _segNum,uint256 _segSize)internal pure returns(uint256,uint256,uint256,uint256){
        
